@@ -40,3 +40,53 @@ class BookQuery(graphene.ObjectType):
         return Book.objects.get(pk=id)
 
 
+class AuthorMutation(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+
+    author = graphene.Field(AuthorType)
+
+    @classmethod
+    def mutate(cls, root, info, name):
+        author = Author(name=name)
+        author.save()
+        return AuthorMutation(author=author)
+
+
+class UpdateAuthorMutation(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        name = graphene.String(required=True)
+
+    author = graphene.Field(AuthorType)
+
+    @classmethod
+    def mutate(cls, root, info, name, id):
+        author = Author.objects.get(id=id)
+        author.name = name
+        author.save()
+        return AuthorMutation(author=author)
+
+
+class DeleteAuthorMutation(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    author = graphene.Field(AuthorType)
+
+    @classmethod
+    def mutate(cls, root, info, id):
+        author = Author.objects.get(id=id)
+        author.delete()
+        return
+
+
+# class CreateBookMutation(graphene.Mutation):
+#     class Arguments:
+
+
+
+class BookMutation(graphene.ObjectType):
+    create_author = AuthorMutation.Field()
+    update_author = UpdateAuthorMutation.Field()
+    delete_author = DeleteAuthorMutation.Field()
